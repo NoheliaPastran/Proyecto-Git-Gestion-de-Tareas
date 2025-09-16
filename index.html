@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Tareas Mejorado</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef2f7;
+      color: #333;
+      padding: 20px;
+    }
+    header, footer {
+      background-color: #0056b3; color: white; text-align: center;
+      padding: 15px 0; margin-bottom: 20px; border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    main {
+      max-width: 800px; margin: 0 auto; background: white;
+      padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1, h2 { margin-bottom: 15px; color: #004080; }
+    form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    input[type="text"], textarea, input[type="date"] {
+      padding: 10px; border: 1px solid #ccc; border-radius: 6px; transition: 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #0056b3; outline: none; box-shadow: 0 0 6px rgba(0,86,179,0.2);
+    }
+    button {
+      background-color: #0056b3; color: white; border: none;
+      padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;
+      transition: 0.2s;
+    }
+    button:hover { background-color: #003d80; transform: scale(1.05); }
+    #lista-tareas ul { list-style: none; padding: 0; }
+    #lista-tareas li {
+      background: #f8f9fa; margin-bottom: 12px; padding: 12px; border-radius: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
+    }
+    #lista-tareas li:hover { background: #eef6ff; }
+    .completada { text-decoration: line-through; color: gray; }
+    .tarea-info { flex-grow: 1; }
+    .tarea-acciones button {
+      margin-left: 8px; border: none; color: white; padding: 6px 10px;
+      border-radius: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tarea-acciones button.completar { background-color: #28a745; }
+    .tarea-acciones button.editar { background-color: #ffc107; }
+    .tarea-acciones button.eliminar { background-color: #dc3545; }
+    .tarea-acciones button:hover { opacity: 0.8; transform: scale(1.1); }
+    /* Notificaciones */
+    #notificacion {
+      position: fixed; top: 20px; right: 20px;
+      background: #333; color: white; padding: 10px 20px;
+      border-radius: 6px; display: none; z-index: 1000;
+    }
+    @media (max-width: 600px) { main { padding: 15px; } form { gap: 8px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gestor de Tareas</h1>
+  </header>
+
+  <main>
+    <h2>Agregar nueva tarea</h2>
+    <form id="form-tarea">
+      <input type="text" id="titulo" placeholder="Título de la tarea" required>
+      <textarea id="descripcion" placeholder="Descripción"></textarea>
+      <input type="date" id="fecha">
+      <button type="submit">➕ Agregar tarea</button>
+    </form>
+
+    <h2>Lista de Tareas</h2>
+    <div id="lista-tareas">
+      <ul id="tareas"></ul>
+    </div>
+  </main>
+
+  <footer>
+    <p>Gestor de Tareas © 2025</p>
+  </footer>
+
+  <div id="notificacion"></div>
+
+  <script>
+    const form = document.getElementById("form-tarea");
+    const lista = document.getElementById("tareas");
+    const notificacion = document.getElementById("notificacion");
+
+    function mostrarNotificacion(mensaje, color="#333") {
+      notificacion.textContent = mensaje;
+      notificacion.style.background = color;
+      notificacion.style.display = "block";
+      setTimeout(() => { notificacion.style.display = "none"; }, 2000);
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const titulo = document.getElementById("titulo").value;
+      const descripcion = document.getElementById("descripcion").value;
+      const fecha = document.getElementById("fecha").value;
+      if (titulo.trim() === "") return;
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <div class="tarea-info">
+          <strong>${titulo}</strong><br>
+          <small>${descripcion}</small><br>
+          <em>${fecha}</em>
+        </div>
+        <div class="tarea-acciones">
+          <button class="completar">✔</button>
+          <button class="editar">✏️</button>
+          <button class="eliminar">🗑</button>
+        </div>
+      `;
+
+      // Completar
+      li.querySelector(".completar").addEventListener("click", () => {
+        li.classList.toggle("completada");
+        mostrarNotificacion("✅ Tarea completada", "#28a745");
+      });
+
+      // Editar
+      li.querySelector(".editar").addEventListener("click", () => {
+        const nuevoTitulo = prompt("Editar título:", titulo);
+        const nuevaDescripcion = prompt("Editar descripción:", descripcion);
+        const nuevaFecha = prompt("Editar fecha (AAAA-MM-DD):", fecha);
+
+        if (nuevoTitulo) li.querySelector("strong").textContent = nuevoTitulo;
+        if (nuevaDescripcion !== null) li.querySelector("small").textContent = nuevaDescripcion;
+        if (nuevaFecha) li.querySelector("em").textContent = nuevaFecha;
+
+        mostrarNotificacion("✏️ Tarea editada", "#ffc107");
+      });
+
+      // Eliminar
+      li.querySelector(".eliminar").addEventListener("click", () => {
+        if (confirm("¿Seguro que quieres eliminar esta tarea?")) {
+          li.remove();
+          mostrarNotificacion("🗑 Tarea eliminada", "#dc3545");
+        }
+      });
+
+      lista.appendChild(li);
+      form.reset();
+      mostrarNotificacion("➕ Tarea agregada", "#0056b3");
+    });
+  </script>
+</body>
+</html>
+
