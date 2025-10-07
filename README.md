@@ -4,3 +4,5 @@ El Sistema de Gestión de Tareas Universitarias es una aplicación que permite a
 Facilita la creación, entrega y calificación de tareas, mejorando la organización, la comunicación y el seguimiento del rendimiento académico dentro del entorno universitario.
 
 Esto es una preba para verifica las funciones de fork y push de GitHub desde Visual.
+
+Linea nueva para validar el pull request.
